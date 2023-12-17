@@ -1,0 +1,74 @@
+{
+  "$id": "1",
+  "$values": [
+    {
+      "$id": "2",
+      "SelectedStudent": {
+        "$id": "3",
+        "StudentId": "A10001",
+        "StudentName": "陳小明"
+      },
+      "SelectedCourse": {
+        "$id": "4",
+        "CourseName": "視窗程式設計",
+        "Type": "必修",
+        "Point": 3,
+        "OpeningClass": "五專三甲"
+      }
+    },
+    {
+      "$id": "5",
+      "SelectedStudent": {
+        "$id": "6",
+        "StudentId": "A10002",
+        "StudentName": "王小美"
+      },
+      "SelectedCourse": {
+        "$ref": "4"
+      }
+    },
+    {
+      "$id": "7",
+      "SelectedStudent": {
+        "$id": "8",
+        "StudentId": "A10004",
+        "StudentName": "黃大山"
+      },
+      "SelectedCourse": {
+        "$id": "9",
+        "CourseName": "計算機概論",
+        "Type": "必修",
+        "Point": 2,
+        "OpeningClass": "四技一丙"
+      }
+    },
+    {
+      "$id": "10",
+      "SelectedStudent": {
+        "$id": "11",
+        "StudentId": "A10003",
+        "StudentName": "林小英"
+      },
+      "SelectedCourse": {
+        "$id": "12",
+        "CourseName": "視窗程式設計",
+        "Type": "選修",
+        "Point": 3,
+        "OpeningClass": "四技二甲"
+      }
+    },
+    {
+      "$id": "13",
+      "SelectedStudent": {
+        "$ref": "11"
+      },
+      "SelectedCourse": {
+        "$id": "14",
+        "CourseName": "Android程式設計",
+        "Type": "選修",
+        "Point": 3,
+        "OpeningClass": "四技資工三甲"
+      }
+    }
+  ]
+}
