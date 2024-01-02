@@ -219,20 +219,34 @@ namespace Course_selection_system
 
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
+            // 建立儲存檔案的對話框
             SaveFileDialog saveFileDialog = new SaveFileDialog();
+
+            // 設置對話框的檔案篩選及標題
             saveFileDialog.Filter = "Json文件 (*.json)|*.json|All Files (*.*)|*.*";
             saveFileDialog.Title = "儲存學生選課紀錄";
 
-            if(saveFileDialog.ShowDialog() == true)
+            // 確認使用者選擇儲存檔案的位置並按下儲存按鈕
+            if (saveFileDialog.ShowDialog() == true)
             {
+                // 設置 JSON 序列化的選項
                 JsonSerializerOptions options = new JsonSerializerOptions
                 {
+                    // 設置字元編碼器，這裡使用 UnicodeRanges.All
                     Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
+
+                    // 保留物件參考以防止循環參考
                     ReferenceHandler = ReferenceHandler.Preserve,
+
+                    // 設置是否格式化輸出的 JSON 字串
                     WriteIndented = true
                 };
 
+                // 假設 records 是包含學生選課紀錄的資料結構
+                // 透過 JsonSerializer.Serialize 方法將資料序列化成 JSON 字串
                 String jsonString = JsonSerializer.Serialize(records, options);
+
+                // 將 JSON 字串寫入至使用者選擇的檔案位置
                 File.WriteAllText(saveFileDialog.FileName, jsonString);
             }
         }
