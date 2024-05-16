@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>號碼顯示器</title>
+    <style>
+        /* 添加一些樣式以美化按鈕 */
+		
+        button {
+            font-size: 32px;
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+        }
+		
+		
+        /* 使用 Flexbox 來將按鈕並排置中 */
+        #button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+		
+        /* 將文字水平置中 */
+        h3, #numberDisplay1,#numberDisplay2 {
+            text-align: center;
+            font-size: 32px;
+        }
+
+        /* 調整 QR 碼大小並使其置中 */
+        #qrcode {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto;
+            display: block;
+            margin-top: 15px;
+        }
+
+        /* 添加垂直分割線樣式 */
+        .vertical-line {
+            border-left: 2px solid #ccc;
+            height: 200 auto; /* 或者你想要的高度 */
+            margin: 0 20px; /* 调整左右间距 */
+        }
+        /* 手機模式下，缩小电脑版样式 */
+	@media only screen and (max-width: 600px) {
+	    button {
+	        font-size: 16px;
+	        padding: 5px 10px;
+	    }
+	    h3, #numberDisplay1, #numberDisplay2 {
+	        font-size: 16px;
+	    }
+	    #qrcode {
+	        width: 100px;
+	        height: 100px;
+		margin: 0 auto;
+	        margin-top: 10px;
+	    }
+	}
+    </style>
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="qrcode.js"></script>
+</head>
+<body>
+    <div id="button-container">
+	<div><h3>目前號碼</h3><h1 id="numberDisplay1" style="font-size:64px;color: blue;"></h1></div>
+	<div class="vertical-line"></div>
+	<div><h3>等候號碼</h3><h1 id="numberDisplay2" style="font-size:64px;color: red;"></h1></div>
+    </div>
+    <!-- 使用 JavaScript 調用函數 -->
+    <div id="button-container">
+        <button onclick="jsfunction1()">下一位</button>
+        <button onclick="confirmReset()">重置</button>
+        <button id="hornButton" onclick="toggleHorn()">
+            <img id="hornImage" src="1.png" alt="喇叭" style="width: 32px;height: 40px;vertical-align: middle;">
+        </button>
+    </div>
+    <div id="qrcode"></div>
+    <script>
+        var payload = 0; // 全局變量 payload
+	var payload2 = 0; // 全局變量 payload2
+        var client = mqtt.connect("ws://220.132.141.9:1818")
+        client.on('connect', ()=>{
+            console.log('connected.');
+            client.subscribe("topic1")
+            client.subscribe("topic2") // 訂閱 topic2
+            client.on("message", function (topic, message) {
+                console.log(message);
+                console.log([topic, message].join(": "));
+                if (topic === "topic1") {
+                    updateCurrentNumber(message); // 调用函数更新当前号码
+                } else if (topic === "topic2") {
+                    updateWaitingNumber(message); // 调用函数更新等候号码
+                }
+            });  
+        });
+
+        function updateCurrentNumber(message) {
+            var currentNumber = document.getElementById("numberDisplay1");
+            currentNumber.innerText = message;
+	    payload = parseInt(message); 
+        }
+
+        function updateWaitingNumber(message) {
+            var waitingNumber = document.getElementById("numberDisplay2");
+            waitingNumber.innerText = message;
+	    payload2 = parseInt(message);
+        }
+
+        // JavaScript 函數1
+	function jsfunction1() {
+	    var currentNumber = document.getElementById("numberDisplay1");
+	    currentNumber.innerText = payload; // 更新当前号码
+	    client.publish("topic1", (payload + 1).toString(), { retain: true }); // 發布消息並保留
+	}
+
+        // JavaScript 函數2
+        function confirmReset() {
+            if (payload !== 0 || payload2 !== 0) {
+		if(payload < payload2){
+		    var confirmReset = confirm("還有客人，確定要重置號碼嗎？");
+		    if (confirmReset) {
+                        jsfunction2(); // 如果用戶按下確定，則執行重置函數
+                    }
+		    return;
+		}
+                var confirmReset = confirm("確定要重置號碼嗎？");
+                if (confirmReset) {
+                    jsfunction2(); // 如果用戶按下確定，則執行重置函數
+                }
+            } else {
+                alert("號碼已經是 0，無需重置。");
+            }
+        }
+
+        // JavaScript 函數3
+        function jsfunction2() {
+            var messagesh1 = document.getElementById("numberDisplay1");
+            messagesh1.innerText = '0';
+            payload = 0; // 重置全局變量 payload
+            client.publish("topic1", "0", { retain: true }); // 發布消息並保留
+            messagesh1 = document.getElementById("numberDisplay2");
+            messagesh1.innerText = '0';
+            payload2 = 0; // 重置全局變量 payload
+            client.publish("topic2", "0", { retain: true }); // 發布消息並保留
+        }
+
+        // JavaScript 函數4
+        function toggleHorn() {
+            var hornImage = document.getElementById('hornImage');
+            var hornButton = document.getElementById('hornButton');
+
+            // 檢查目前圖片是哪個，然後切換到另一個圖片
+            if (hornImage.src.endsWith('1.png')) {
+                hornImage.src = '2.png';
+                // 在這裡添加您想要的行為，比如喇叭開啟時的操作
+                alert("喇叭已關閉！");
+            } else {
+                hornImage.src = '1.png';
+                // 在這裡添加您想要的行為，比如喇叭關閉時的操作
+                alert("喇叭已開啟！");
+            }
+        }
+
+        // 在頁面完全加載後生成 QR 碼
+        window.onload = function() {
+            var qrcode = new QRCode(document.getElementById("qrcode"), {
+                width : 150,
+                height : 150
+            });
+
+            qrcode.makeCode("http://rdfix.com:8080/");
+        }
+    </script>
+</body>
+</html>
